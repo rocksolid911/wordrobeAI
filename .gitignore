@@ -1,0 +1,51 @@
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.runtimeconfig.json
+
+# Functions
+functions/node_modules/
+functions/.env
+functions/.env.*
+
+# Mobile App
+mobile_app/.env
+mobile_app/build/
+mobile_app/.dart_tool/
+mobile_app/.flutter-plugins
+mobile_app/.flutter-plugins-dependencies
+mobile_app/.packages
+mobile_app/pubspec.lock
+
+# iOS specific
+mobile_app/ios/Pods/
+mobile_app/ios/Podfile.lock
+mobile_app/ios/.symlinks/
+mobile_app/ios/Flutter/App.framework
+mobile_app/ios/Flutter/Flutter.framework
+mobile_app/ios/Flutter/Generated.xcconfig
+mobile_app/ios/Flutter/ephemeral/
+
+# Android specific
+mobile_app/android/.gradle/
+mobile_app/android/app/google-services.json
+mobile_app/android/local.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# macOS
+.DS_Store
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# API Keys
+**/api_keys.dart
