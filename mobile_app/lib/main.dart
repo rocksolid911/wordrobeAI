@@ -1,0 +1,89 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'core/theme/app_theme.dart';
+import 'core/constants/app_constants.dart';
+import 'firebase_options.dart';
+import 'providers/auth_provider.dart';
+import 'providers/wardrobe_provider.dart';
+import 'providers/outfit_provider.dart';
+import 'providers/recommendation_provider.dart';
+import 'screens/splash_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/home/home_screen.dart';
+import 'screens/wardrobe/wardrobe_screen.dart';
+import 'screens/wardrobe/add_item_screen.dart';
+import 'screens/outfit/outfit_planner_screen.dart';
+import 'screens/outfit/outfit_calendar_screen.dart';
+import 'screens/recommendations/recommendation_screen.dart';
+import 'screens/shopping/shopping_screen.dart';
+import 'screens/profile/profile_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => WardrobeProvider()),
+        ChangeNotifierProvider(create: (_) => OutfitProvider()),
+        ChangeNotifierProvider(create: (_) => RecommendationProvider()),
+      ],
+      child: MaterialApp(
+        title: AppConstants.appName,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.light,
+        navigatorObservers: [observer],
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const SplashScreen(),
+          '/onboarding': (context) => const OnboardingScreen(),
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/wardrobe': (context) => const WardrobeScreen(),
+          '/add-item': (context) => const AddItemScreen(),
+          '/outfit-planner': (context) => const OutfitPlannerScreen(),
+          '/outfit-calendar': (context) => const OutfitCalendarScreen(),
+          '/recommendations': (context) => const RecommendationScreen(),
+          '/shopping': (context) => const ShoppingScreen(),
+          '/profile': (context) => const ProfileScreen(),
+        },
+      ),
+    );
+  }
+}
