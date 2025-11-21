@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../bloc/auth/auth_cubit.dart';
+import '../../bloc/auth/auth_state.dart';
 import '../../core/theme/app_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -27,9 +28,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authCubit = context.read<AuthCubit>();
 
-      final success = await authProvider.signUpWithEmail(
+      final success = await authCubit.signUpWithEmail(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         name: _nameController.text.trim(),
@@ -40,9 +41,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (success) {
         Navigator.of(context).pushReplacementNamed('/onboarding');
       } else {
+        final state = authCubit.state;
+        final errorMessage = state is AuthError ? state.message : 'Registration failed';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.error ?? 'Registration failed'),
+            content: Text(errorMessage),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -127,11 +130,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, child) {
+                BlocBuilder<AuthCubit, AuthState>(
+                  builder: (context, state) {
+                    final isLoading = state is AuthLoading;
                     return ElevatedButton(
-                      onPressed: authProvider.isLoading ? null : _signUp,
-                      child: authProvider.isLoading
+                      onPressed: isLoading ? null : _signUp,
+                      child: isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,

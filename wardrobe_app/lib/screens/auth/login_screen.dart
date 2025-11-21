@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../bloc/auth/auth_cubit.dart';
+import '../../bloc/auth/auth_state.dart';
 import '../../core/theme/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,9 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signIn() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authCubit = context.read<AuthCubit>();
 
-      final success = await authProvider.signInWithEmail(
+      final success = await authCubit.signInWithEmail(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -35,15 +36,18 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (success) {
-        if (authProvider.user?.onboardingCompleted == true) {
+        final user = authCubit.currentUser;
+        if (user?.onboardingCompleted == true) {
           Navigator.of(context).pushReplacementNamed('/home');
         } else {
           Navigator.of(context).pushReplacementNamed('/onboarding');
         }
       } else {
+        final state = authCubit.state;
+        final errorMessage = state is AuthError ? state.message : 'Login failed';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.error ?? 'Login failed'),
+            content: Text(errorMessage),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -52,22 +56,25 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authCubit = context.read<AuthCubit>();
 
-    final success = await authProvider.signInWithGoogle();
+    final success = await authCubit.signInWithGoogle();
 
     if (!mounted) return;
 
     if (success) {
-      if (authProvider.user?.onboardingCompleted == true) {
+      final user = authCubit.currentUser;
+      if (user?.onboardingCompleted == true) {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         Navigator.of(context).pushReplacementNamed('/onboarding');
       }
     } else {
+      final state = authCubit.state;
+      final errorMessage = state is AuthError ? state.message : 'Google sign in failed';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.error ?? 'Google sign in failed'),
+          content: Text(errorMessage),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -154,11 +161,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, child) {
+                BlocBuilder<AuthCubit, AuthState>(
+                  builder: (context, state) {
+                    final isLoading = state is AuthLoading;
                     return ElevatedButton(
-                      onPressed: authProvider.isLoading ? null : _signIn,
-                      child: authProvider.isLoading
+                      onPressed: isLoading ? null : _signIn,
+                      child: isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,

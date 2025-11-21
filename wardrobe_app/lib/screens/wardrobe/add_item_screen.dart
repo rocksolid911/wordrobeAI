@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/wardrobe_provider.dart';
+import '../../bloc/auth/auth_cubit.dart';
+import '../../bloc/auth/auth_state.dart';
+import '../../bloc/wardrobe/wardrobe_bloc.dart';
+import '../../bloc/wardrobe/wardrobe_event.dart';
+import '../../bloc/wardrobe/wardrobe_state.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -36,19 +39,26 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
         // Analyze image with AI
         if (mounted) {
-          final wardrobeProvider = Provider.of<WardrobeProvider>(context, listen: false);
-          final analysis = await wardrobeProvider.analyzeImage(_imageFile!);
+          final wardrobeBloc = context.read<WardrobeBloc>();
+          wardrobeBloc.add(AnalyzeImage(_imageFile!));
 
-          if (analysis != null) {
-            setState(() {
-              _selectedCategory = analysis.category;
-              _selectedSubcategory = analysis.subcategory;
-              if (analysis.colors.isNotEmpty) {
-                _selectedColor = analysis.colors.first;
-              }
-              _selectedPattern = analysis.pattern;
-              _selectedOccasions.addAll(analysis.occasions);
-            });
+          // Listen for analysis result
+          await for (final state in wardrobeBloc.stream) {
+            if (state is ImageAnalyzed) {
+              final analysis = state.result;
+              setState(() {
+                _selectedCategory = analysis.category;
+                _selectedSubcategory = analysis.subcategory;
+                if (analysis.colors.isNotEmpty) {
+                  _selectedColor = analysis.colors.first;
+                }
+                _selectedPattern = analysis.pattern;
+                _selectedOccasions.addAll(analysis.occasions);
+              });
+              break;
+            } else if (state is WardrobeError) {
+              break;
+            }
           }
         }
       }
@@ -61,11 +71,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   Future<void> _saveItem() async {
     if (_formKey.currentState!.validate() && _imageFile != null) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final wardrobeProvider = Provider.of<WardrobeProvider>(context, listen: false);
+      final authCubit = context.read<AuthCubit>();
+      final wardrobeBloc = context.read<WardrobeBloc>();
 
-      final item = await wardrobeProvider.addClothingItem(
-        userId: authProvider.user!.id,
+      final user = authCubit.currentUser;
+      if (user == null) return;
+
+      wardrobeBloc.add(AddClothingItem(
+        userId: user.id,
         imageFile: _imageFile!,
         category: _selectedCategory,
         subcategory: _selectedSubcategory ?? '',
@@ -73,22 +86,31 @@ class _AddItemScreenState extends State<AddItemScreen> {
         pattern: _selectedPattern,
         season: _selectedSeason,
         occasionTags: _selectedOccasions,
-      );
+      ));
 
       if (!mounted) return;
 
-      if (item != null) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Item added successfully!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(wardrobeProvider.error ?? 'Failed to add item'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
+      // Listen for result
+      await for (final state in wardrobeBloc.stream) {
+        if (state is ClothingItemAdded) {
+          Navigator.of(context).pop();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Item added successfully!')),
+            );
+          }
+          break;
+        } else if (state is WardrobeError) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppTheme.errorColor,
+              ),
+            );
+          }
+          break;
+        }
       }
     }
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/wardrobe_provider.dart';
+import '../../bloc/wardrobe/wardrobe_bloc.dart';
+import '../../bloc/wardrobe/wardrobe_state.dart';
 import '../../core/constants/app_constants.dart';
 
 class WardrobeScreen extends StatefulWidget {
@@ -17,13 +17,16 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final wardrobeProvider = Provider.of<WardrobeProvider>(context);
+    return BlocBuilder<WardrobeBloc, WardrobeState>(
+      builder: (context, state) {
+        final items = state is WardrobeLoaded ? state.items : [];
+        final displayItems = _selectedCategory == null
+            ? items
+            : state is WardrobeLoaded
+                ? state.getItemsByCategory(_selectedCategory!)
+                : [];
 
-    final displayItems = _selectedCategory == null
-        ? wardrobeProvider.items
-        : wardrobeProvider.getItemsByCategory(_selectedCategory!);
-
-    return Scaffold(
+        return Scaffold(
       appBar: AppBar(
         title: const Text('My Wardrobe'),
         actions: [
@@ -152,6 +155,8 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
         },
         child: const Icon(Icons.add),
       ),
+        );
+      },
     );
   }
 }
