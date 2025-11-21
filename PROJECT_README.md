@@ -72,7 +72,7 @@ firebase login
 firebase init
 
 # 3. Configure Flutter Firebase
-cd mobile_app
+cd wardrobe_app
 flutterfire configure
 
 # 4. Install dependencies
@@ -140,7 +140,7 @@ Tracks user engagement via Firebase Analytics:
 
 ```bash
 # Flutter tests
-cd mobile_app
+cd wardrobe_app
 flutter test
 
 # Cloud Functions tests

@@ -11,27 +11,27 @@ functions/.env
 functions/.env.*
 
 # Mobile App
-mobile_app/.env
-mobile_app/build/
-mobile_app/.dart_tool/
-mobile_app/.flutter-plugins
-mobile_app/.flutter-plugins-dependencies
-mobile_app/.packages
-mobile_app/pubspec.lock
+wardrobe_app/.env
+wardrobe_app/build/
+wardrobe_app/.dart_tool/
+wardrobe_app/.flutter-plugins
+wardrobe_app/.flutter-plugins-dependencies
+wardrobe_app/.packages
+wardrobe_app/pubspec.lock
 
 # iOS specific
-mobile_app/ios/Pods/
-mobile_app/ios/Podfile.lock
-mobile_app/ios/.symlinks/
-mobile_app/ios/Flutter/App.framework
-mobile_app/ios/Flutter/Flutter.framework
-mobile_app/ios/Flutter/Generated.xcconfig
-mobile_app/ios/Flutter/ephemeral/
+wardrobe_app/ios/Pods/
+wardrobe_app/ios/Podfile.lock
+wardrobe_app/ios/.symlinks/
+wardrobe_app/ios/Flutter/App.framework
+wardrobe_app/ios/Flutter/Flutter.framework
+wardrobe_app/ios/Flutter/Generated.xcconfig
+wardrobe_app/ios/Flutter/ephemeral/
 
 # Android specific
-mobile_app/android/.gradle/
-mobile_app/android/app/google-services.json
-mobile_app/android/local.properties
+wardrobe_app/android/.gradle/
+wardrobe_app/android/app/google-services.json
+wardrobe_app/android/local.properties
 
 # IDE
 .idea/

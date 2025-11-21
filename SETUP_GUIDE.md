@@ -129,7 +129,7 @@ export PATH="$PATH":"$HOME/.pub-cache/bin"
 
 ```bash
 # Navigate to Flutter app directory
-cd wordrobeAI/mobile_app
+cd wordrobeAI/wardrobe_app
 
 # Run FlutterFire configure
 flutterfire configure
@@ -142,7 +142,7 @@ flutterfire configure
 ### Step 4: Install Flutter Dependencies
 
 ```bash
-cd wordrobeAI/mobile_app
+cd wordrobeAI/wardrobe_app
 flutter pub get
 ```
 
@@ -181,7 +181,7 @@ flutter pub get
 ### Step 3: Create .env File
 
 ```bash
-cd wordrobeAI/mobile_app
+cd wordrobeAI/wardrobe_app
 
 # Copy example file
 cp .env.example .env
@@ -287,7 +287,7 @@ open -a Simulator
 ### Step 3: Run the App
 
 ```bash
-cd wordrobeAI/mobile_app
+cd wordrobeAI/wardrobe_app
 
 # Run on first available device
 flutter run
