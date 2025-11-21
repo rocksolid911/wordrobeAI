@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'firebase_options.dart';
-import 'providers/auth_provider.dart';
-import 'providers/wardrobe_provider.dart';
-import 'providers/outfit_provider.dart';
-import 'providers/recommendation_provider.dart';
+import 'bloc/auth/auth_cubit.dart';
+import 'bloc/wardrobe/wardrobe_bloc.dart';
+import 'bloc/outfit/outfit_cubit.dart';
+import 'bloc/recommendation/recommendation_bloc.dart';
 import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
@@ -54,12 +54,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MultiBlocProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => WardrobeProvider()),
-        ChangeNotifierProvider(create: (_) => OutfitProvider()),
-        ChangeNotifierProvider(create: (_) => RecommendationProvider()),
+        BlocProvider(create: (_) => AuthCubit()),
+        BlocProvider(create: (_) => WardrobeBloc()),
+        BlocProvider(create: (_) => OutfitCubit()),
+        BlocProvider(create: (_) => RecommendationBloc()),
       ],
       child: MaterialApp(
         title: AppConstants.appName,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/auth/auth_cubit.dart';
+import '../bloc/auth/auth_state.dart';
 import '../core/theme/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,10 +23,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final authCubit = context.read<AuthCubit>();
 
-    if (authProvider.isAuthenticated) {
-      if (authProvider.user?.onboardingCompleted == true) {
+    if (authCubit.isAuthenticated) {
+      final user = authCubit.currentUser;
+      if (user?.onboardingCompleted == true) {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         Navigator.of(context).pushReplacementNamed('/onboarding');

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../bloc/auth/auth_cubit.dart';
+import '../../bloc/auth/auth_state.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -26,9 +27,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _completeOnboarding() async {
     if (_formKey.currentState!.validate()) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authCubit = context.read<AuthCubit>();
 
-      final success = await authProvider.completeOnboarding(
+      final success = await authCubit.completeOnboarding(
         city: _cityController.text.trim(),
         genderPreference: _selectedGender,
         stylePreferences: _selectedStyles,
@@ -40,9 +41,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (success) {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
+        final state = authCubit.state;
+        final errorMessage = state is AuthError ? state.message : 'Failed to save preferences';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.error ?? 'Failed to save preferences'),
+            content: Text(errorMessage),
             backgroundColor: AppTheme.errorColor,
           ),
         );
